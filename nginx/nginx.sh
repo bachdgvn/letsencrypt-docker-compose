@@ -7,6 +7,16 @@ if [ -z "$DOMAINS" ]; then
   exit 1;
 fi
 
+if [ -z "$SERVICE_NAMES" ]; then
+  echo "SERVICE_NAMES environment variable is not set"
+  exit 1;
+fi
+
+if [ -z "$SERVICE_PORTS" ]; then
+  echo "SERVICE_PORTS environment variable is not set"
+  exit 1;
+fi
+
 use_dummy_certificate() {
   if grep -q "/etc/letsencrypt/live/$1" "/etc/nginx/sites/$1.conf"; then
     echo "Switching Nginx to use dummy certificate for $1"
@@ -40,9 +50,15 @@ if [ ! -f /etc/nginx/ssl/ssl-dhparams.pem ]; then
 fi
 
 for domain in $DOMAINS; do
+for ((i = 0; i < ${#DOMAINS[@]}; ++i)); do
+  service_name=${SERVICE_NAMES[$i]}
+  service_port=${SERVICE_PORTS[$i]}
   if [ ! -f "/etc/nginx/sites/$domain.conf" ]; then
     echo "Creating Nginx configuration file /etc/nginx/sites/$domain.conf"
     sed "s/\${domain}/$domain/g" /customization/site.conf.tpl > "/etc/nginx/sites/$domain.conf"
+    sed "s/\${service_name}/$service_name/g" /customization/site.conf.tpl > "/etc/nginx/sites/$domain.conf"
+    sed "s/\${service_port}/$service_port/g" /customization/site.conf.tpl > "/etc/nginx/sites/$domain.conf"
+    echo `cat "/etc/nginx/sites/$domain.conf"`
   fi
 
   if [ ! -f "/etc/nginx/ssl/dummy/$domain/fullchain.pem" ]; then
