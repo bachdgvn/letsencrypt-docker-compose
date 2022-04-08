@@ -49,7 +49,8 @@ if [ ! -f /etc/nginx/ssl/ssl-dhparams.pem ]; then
   openssl dhparam -out /etc/nginx/ssl/ssl-dhparams.pem 2048
 fi
 
-for ((i = 0; i < ${#DOMAINS[@]}; ++i)); do
+i=0
+while [ "$i" -le ${#DOMAINS[@]} ]; do
   service_name=${SERVICE_NAMES[$i]}
   service_port=${SERVICE_PORTS[$i]}
   if [ ! -f "/etc/nginx/sites/$domain.conf" ]; then
@@ -76,6 +77,8 @@ for ((i = 0; i < ${#DOMAINS[@]}; ++i)); do
   else
     use_lets_encrypt_certificate "$domain"
   fi
+  
+  i=$(( i + 1 ))
 done
 
 exec nginx -g "daemon off;"
