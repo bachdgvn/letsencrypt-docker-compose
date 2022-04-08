@@ -1,3 +1,7 @@
+upstream ${service_name} {
+  server ${service_name}:${service_port};
+}
+
 server {
     listen 80;
 
@@ -25,7 +29,15 @@ server {
 
     include /etc/nginx/hsts.conf;
 
-    location / {
-        root     /var/www/html/${domain};
+     location / {
+        proxy_pass http://${service_name};
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+    }
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
     }
 }
