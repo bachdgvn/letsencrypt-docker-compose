@@ -49,7 +49,6 @@ if [ ! -f /etc/nginx/ssl/ssl-dhparams.pem ]; then
   openssl dhparam -out /etc/nginx/ssl/ssl-dhparams.pem 2048
 fi
 
-for domain in $DOMAINS; do
 for ((i = 0; i < ${#DOMAINS[@]}; ++i)); do
   service_name=${SERVICE_NAMES[$i]}
   service_port=${SERVICE_PORTS[$i]}
